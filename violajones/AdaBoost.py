@@ -56,11 +56,14 @@ def learn(positive_iis, negative_iis, num_classifiers=-1, min_feature_width=1, m
     bar = progressbar.ProgressBar()
     # Use as many workers as there are CPUs
     pool = Pool(processes=None)
-    for i in bar(range(num_imgs)):
-        votes[i, :] = np.array(list(pool.map(partial(_get_feature_vote, image=images[i]), features)))
-
+    
+    votes_faces = pool.map(partial(_get_feature_vote, features=features), positive_iis)))
+    votes_no_faces = pool.map(partial(_get_feature_vote, features=features), negative_iis)))
+    pool.close()
+    pool.join()
+    print('Done Extract haar features...')
     # select classifiers
-
+    votes = np.array(votes_faces+votes_no_faces)
     classifiers = []
 
     print('Selecting classifiers..')
@@ -101,8 +104,11 @@ def learn(positive_iis, negative_iis, num_classifiers=-1, min_feature_width=1, m
     return classifiers
 
 
-def _get_feature_vote(feature, image):
-    return feature.get_vote(image)
+def _get_feature_vote(image, features):
+    votes = []
+    for feature in features:
+        votes.append(feature.get_vote(image))
+    return votes
 
 
 def _create_features(img_height, img_width, min_feature_width, max_feature_width, min_feature_height, max_feature_height):
