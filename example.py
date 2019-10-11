@@ -37,8 +37,8 @@ if __name__ == "__main__":
     print('Testing selected classifiers..')
     correct_faces = 0
     correct_non_faces = 0
-    correct_faces = sum(utils.ensemble_vote_all(faces_ii_testing, classifiers))
-    correct_non_faces = len(non_faces_testing) - sum(utils.ensemble_vote_all(non_faces_ii_testing, classifiers))
+    correct_faces = sum([ab._get_feature_vote(face, classifiers) for face in faces_ii_testing])
+    correct_non_faces = len(non_faces_testing) - sum([ab._get_feature_vote(non_face, classifiers) for non_face in non_faces_ii_testing])
 
     print('..done.\n\nResult:\n      Faces: ' + str(correct_faces) + '/' + str(len(faces_testing))
           + '  (' + str((float(correct_faces) / len(faces_testing)) * 100) + '%)\n  non-Faces: '
